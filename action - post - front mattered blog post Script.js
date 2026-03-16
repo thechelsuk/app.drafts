@@ -1,10 +1,10 @@
 /*
  * @title: Create mixtape post in Working Copy
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: Creates a blog post in working copy based on front matter
  */
 
-var credential = Credential.create("Jekyll path", "Jekyll path");
+var credential = Credential.create("Jekyll Post Path", "Jekyll Post Path");
 credential.addTextField("jekyll-repo", "Jekyll repo name");
 credential.addTextField("jekyll-path", "Path to your Jekyll posts directory");
 credential.addTextField("working-copy-key", "Working Copy x-url-callback key");

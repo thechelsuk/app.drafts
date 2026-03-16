@@ -1,10 +1,10 @@
-* @title: Jekyll formatting -> Working Copy
+/* @title: Jekyll formatting -> Working Copy
  * @author: thechelsuk
- * @notes: creates jekyll md file
+ * @notes: creates jekyll md file in RSS folder
  */
-var credential = Credential.create("Jekyll Post Path", "Jekyll Post Pat");
+var credential = Credential.create("Jekyll RSS path", "Jekyll RSS path");
 credential.addTextField("jekyll-repo", "Jekyll repo name");
-credential.addTextField("jekyll-path", "Path to your jekyll posts directory");
+credential.addTextField("jekyll-rss-path", "Path to your jekyll posts directory");
 credential.addTextField("working-copy-key", "Working Copy x-url-callback key");
 
 var result = credential.authorize();
@@ -14,7 +14,7 @@ if (!result) {
 	context.cancel("Failed to obtain required Jekyll data. Please check it and try again.");
 } else {
     if ((typeof(credential.getValue("jekyll-repo")) === 'undefined' || String(credential.getValue("jekyll-repo")).length === 0) ||
-        (typeof(credential.getValue("jekyll-path")) === 'undefined' || String(credential.getValue("jekyll-path")).length === 0) ||
+        (typeof(credential.getValue("jekyll-rss-path")) === 'undefined' || String(credential.getValue("jekyll-path")).length === 0) ||
         (typeof(credential.getValue("working-copy-key")) === 'undefined' || String(credential.getValue("working-copy-key")).length === 0)) {
 		alert("Repo values are invalid. Please rerun action and enter token again");
 		credential.forget();
@@ -35,9 +35,9 @@ if (!result) {
         } else {
             prompt.addTextField('title', 'Title', draft.title);
         };
-
+	
         prompt.addTextField('date', 'Date', now);
-
+       
         prompt.addButton('Ok');
         prompt.show();
 
@@ -52,7 +52,7 @@ if (!result) {
 
             // remove the file name from the draft
             content = content.replace(prompt.fieldValues['title'], '').trim();
-
+            
             // assemble post frontmatter
             newDraft += '---\n';
             newDraft += '\n';
@@ -73,7 +73,7 @@ if (!result) {
                 baseURL = 'working-copy://x-callback-url/write/?key=' +
                           credential.getValue("working-copy-key") +
                           '&repo=' + encodeURIComponent(credential.getValue("jekyll-repo")) +
-                          '&path=' + encodeURIComponent(credential.getValue("jekyll-path")) + '/' +  year + '/' +
+                          '&path=' + encodeURIComponent(credential.getValue("jekyll-rss-path")) +
                           encodeURIComponent(fileName.toLowerCase()) +
                           '&text=' +
                           encodeURIComponent(newDraft),

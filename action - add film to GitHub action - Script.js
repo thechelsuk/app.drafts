@@ -1,6 +1,6 @@
 /*
  * @title: Film to GitHub Actions
- * @author: TheChelsuk
+ * @author: thechelsuk
  * @notes: Runs a github action to
  * process which adds a film to a yaml
  * datastore. Uses GitHub API to trigger

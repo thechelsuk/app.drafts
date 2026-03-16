@@ -1,10 +1,10 @@
 /*
  * @title: Regular Post to Working Copy
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: Create markdown blog post in Working Copy
  */
 
-var credential = Credential.create("Jekyll path", "Jekyll path");
+var credential = Credential.create("Jekyll Post Path", "Jekyll Post Path");
 credential.addTextField("jekyll-repo", "Jekyll repo name");
 credential.addTextField("jekyll-path", "Path to your jekyll posts directory");
 credential.addTextField("working-copy-key", "Working Copy x-url-callback key");
