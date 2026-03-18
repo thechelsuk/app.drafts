@@ -11,7 +11,7 @@ if (draft.content && draft.content.trim() !== "") {
     // === GET CREDENTIALS ===
     let credential = Credential.create(
         "GitHub Film Tracker",
-        "Enter your GitHub details"
+        "Enter your GitHub details",
     );
     credential.addTextField("GH_USER", "GitHub Username");
     credential.addTextField("GH_REPO", "Repository Name");
@@ -26,10 +26,10 @@ if (draft.content && draft.content.trim() !== "") {
     // === PARSE DRAFT ===
     let lines = draft.content.split("\n");
 
-    let title = null;
+    let imdbId = null;
     let rating = null;
 
-    // Parse each line looking for Title: and Rating:
+    // Parse each line looking for IMDb: (or IMDb_ID:) and Rating:
     for (let line of lines) {
         line = line.trim();
 
@@ -38,9 +38,13 @@ if (draft.content && draft.content.trim() !== "") {
             continue;
         }
 
-        // Extract title
-        if (line.toLowerCase().startsWith("title:")) {
-            title = line.substring(6).trim();
+        // Extract IMDb ID
+        if (line.toLowerCase().startsWith("imdb:")) {
+            imdbId = line.substring(5).trim();
+        }
+
+        if (line.toLowerCase().startsWith("imdb_id:")) {
+            imdbId = line.substring(8).trim();
         }
 
         // Extract rating
@@ -49,8 +53,15 @@ if (draft.content && draft.content.trim() !== "") {
         }
     }
 
-    // Validate we found both title and rating
-    if (title && rating) {
+    // Validate we found both IMDb ID and rating
+    if (imdbId && rating) {
+        // Validate IMDb ID format tt followed by digits
+        const imdbPattern = /^tt\d+$/i;
+        if (!imdbPattern.test(imdbId)) {
+            app.displayErrorMessage("IMDb must be in format tt1234567");
+            context.cancel();
+        }
+
         // Validate rating is an integer between 1-10
         let ratingNum = parseInt(rating);
         if (
@@ -69,7 +80,7 @@ if (draft.content && draft.content.trim() !== "") {
             let requestData = {
                 ref: "main",
                 inputs: {
-                    title: title,
+                    imdb_id: imdbId,
                     rating: rating,
                 },
             };
@@ -89,7 +100,7 @@ if (draft.content && draft.content.trim() !== "") {
             // Check response
             if (response.success && response.statusCode === 204) {
                 app.displaySuccessMessage(
-                    "Film added: " + title + " (" + rating + ")"
+                    "Film added: " + imdbId + " (" + rating + ")",
                 );
 
                 // Archive the draft after successful submission
@@ -97,27 +108,25 @@ if (draft.content && draft.content.trim() !== "") {
                 draft.update();
             } else {
                 app.displayErrorMessage(
-                    "GitHub API error: " + response.statusCode
+                    "GitHub API error: " + response.statusCode,
                 );
                 console.log("Response: " + JSON.stringify(response));
                 context.fail();
             }
         } else {
             app.displayErrorMessage(
-                "Rating must be an integer between 1 and 10"
+                "Rating must be an integer between 1 and 10",
             );
             context.cancel();
         }
     } else {
         let missing = [];
-        if (!title) missing.push("Title");
+        if (!imdbId) missing.push("IMDb");
         if (!rating) missing.push("Rating");
         app.displayErrorMessage("Missing: " + missing.join(" and "));
         context.cancel();
     }
 } else {
-    app.displayErrorMessage(
-        "Draft is empty. Add a film title and rating first."
-    );
+    app.displayErrorMessage("Draft is empty. Add an IMDb ID and rating first.");
     context.cancel();
 }
