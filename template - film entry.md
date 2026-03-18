@@ -1,5 +1,6 @@
 # FilmEntry
 
+<|search>
 Date: [[date]]
-Title: <|title>
+IMDB: <|IMDbCode>
 Rating: <|rating>
