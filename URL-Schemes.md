@@ -36,3 +36,7 @@ This document provides a list of useful URL schemes for the [Drafts app](https:/
 ### Bing Search
 
 - `bing://search?query=[[selection]]`
+
+### Quiche Browser
+
+- `qb:open?url=[[selection]]`
