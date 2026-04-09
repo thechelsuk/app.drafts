@@ -74,6 +74,7 @@ if (!result) {
         var titleDefault =
             draft.title && draft.title.length > 0 ? draft.title : "";
         prompt.addTextField("title", "Title", titleDefault);
+        prompt.addSwitch("pinned", "Pinned", false);
 
         prompt.isCancellable = true;
         prompt.addButton("Ok");
@@ -82,6 +83,7 @@ if (!result) {
         if (prompt.buttonPressed == "Ok") {
             var postType = prompt.fieldValues["postType"][0],
                 titleVal = prompt.fieldValues["title"],
+                pinnedVal = prompt.fieldValues["pinned"],
                 linkVal = extractedLink,
                 citedVal = extractedCited;
 
@@ -102,20 +104,26 @@ if (!result) {
                 titleArr.map((t) => (fileName += t + "-"));
                 fileName = fileName.replace(/-$/, "") + ".md";
 
-                var postPath = "_posts/" + year + "/" + fileName.toLowerCase(),
-                    cb = CallbackURL.create();
+                var postPath = "_posts/" + year + "/" + fileName.toLowerCase();
 
-                if (postType === "mixtapes") {
-                    // mixtapes: front matter is already present — send raw draft content as-is
-                    cb.baseURL =
+                function buildWorkingCopyURL(path, text) {
+                    return (
                         "working-copy://x-callback-url/write/?key=" +
                         credential.getValue("working-copy-key") +
                         "&repo=" +
                         encodeURIComponent(credential.getValue("jekyll-repo")) +
                         "&path=" +
-                        encodeURIComponent(postPath) +
+                        encodeURIComponent(path) +
                         "&text=" +
-                        encodeURIComponent(draft.content);
+                        encodeURIComponent(text)
+                    );
+                }
+
+                var cb = CallbackURL.create();
+
+                if (postType === "mixtapes") {
+                    // mixtapes: front matter is already present — send raw draft content as-is
+                    cb.baseURL = buildWorkingCopyURL(postPath, draft.content);
                 } else {
                     // remove the title line from content
                     content = content.replace(titleVal, "").trim();
@@ -124,7 +132,9 @@ if (!result) {
                     var newDraft = "---\n\n";
                     newDraft += "layout: post\n";
                     newDraft += "date: " + frontMatterDate + "\n";
-                    newDraft += "title: " + titleVal + "\n";
+                    var frontMatterTitle =
+                        postType === "til" ? "TIL - " + titleVal : titleVal;
+                    newDraft += "title: " + frontMatterTitle + "\n";
 
                     if (linkVal !== "") newDraft += "link: " + linkVal + "\n";
                     if (citedVal !== "")
@@ -134,21 +144,15 @@ if (!result) {
                     else if (postType === "til") newDraft += "type: TIL\n";
                     else if (postType === "ways") newDraft += "type: Ways\n";
 
+                    if (pinnedVal) newDraft += "pinned: true\n";
+
                     newDraft += "\n---\n\n";
                     newDraft += content;
 
                     // set draft content
                     editor.setText(newDraft);
 
-                    cb.baseURL =
-                        "working-copy://x-callback-url/write/?key=" +
-                        credential.getValue("working-copy-key") +
-                        "&repo=" +
-                        encodeURIComponent(credential.getValue("jekyll-repo")) +
-                        "&path=" +
-                        encodeURIComponent(postPath) +
-                        "&text=" +
-                        encodeURIComponent(newDraft);
+                    cb.baseURL = buildWorkingCopyURL(postPath, newDraft);
                 }
 
                 if (!cb.open()) {
