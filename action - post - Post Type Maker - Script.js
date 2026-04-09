@@ -3,7 +3,9 @@
  * @author: thechelsuk
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
- *         Supports post, quote, rss, til, ways as post types via front matter.
+ *         Supports post, quote, rss, til, ways, mixtapes as post types via front matter.
+ *         mixtapes: skips front matter assembly — sends raw draft content as-is to Working Copy.
+ *         quote: requires Link and/or Cited metadata in the draft body.
  *         Extracts Link/Cited/Date from draft content automatically if present.
  */
 
@@ -35,8 +37,8 @@ if (!result) {
     } else {
         var date = new Date(),
             year = date.getFullYear().toString(),
-            dateForFilename = date.toISOString().substr(0, 10),
-            nowWithTime = date.toISOString().substr(0, 16).replace("T", " ");
+            dateForFilename = date.toISOString().slice(0, 10),
+            nowWithTime = date.toISOString().slice(0, 16).replace("T", " ");
 
         // extract metadata lines from draft content
         var rawContent = draft.content,
@@ -64,7 +66,7 @@ if (!result) {
         prompt.addSelect(
             "postType",
             "Post type",
-            ["post", "quote", "rss", "til", "ways"],
+            ["post", "quote", "rss", "til", "ways", "mixtapes"],
             ["post"],
             false,
         );
@@ -83,57 +85,76 @@ if (!result) {
                 linkVal = extractedLink,
                 citedVal = extractedCited;
 
-            // build filename: yyyy-mm-dd-title.md (no time)
-            var fileTitle = titleVal
-                .replace(/:/g, "-")
-                .replace(/ - /g, "-")
-                .trim();
-            var titleArr = fileTitle.split(" "),
-                fileName = dateForFilename + "-";
-            titleArr.map((t) => (fileName += t + "-"));
-            fileName = fileName.replace(/-$/, "") + ".md";
-
-            // remove the title line from content
-            content = content.replace(titleVal, "").trim();
-
-            // assemble front matter
-            var newDraft = "---\n\n";
-            newDraft += "layout: post\n";
-            newDraft += "date: " + frontMatterDate + "\n";
-            newDraft += "title: " + titleVal + "\n";
-
-            if (linkVal !== "") newDraft += "link: " + linkVal + "\n";
-            if (citedVal !== "") newDraft += "cited: " + citedVal + "\n";
-
-            if (postType === "rss") newDraft += "type: RSS\n";
-            else if (postType === "til") newDraft += "type: TIL\n";
-            else if (postType === "ways") newDraft += "type: Ways\n";
-
-            newDraft += "\n---\n\n";
-            newDraft += content;
-
-            // set draft content
-            editor.setText(newDraft);
-
-            // send to working copy — path is always _posts/[year]/
-            var postPath = "_posts/" + year + "/" + fileName.toLowerCase(),
-                baseURL =
-                    "working-copy://x-callback-url/write/?key=" +
-                    credential.getValue("working-copy-key") +
-                    "&repo=" +
-                    encodeURIComponent(credential.getValue("jekyll-repo")) +
-                    "&path=" +
-                    encodeURIComponent(postPath) +
-                    "&text=" +
-                    encodeURIComponent(newDraft),
-                cb = CallbackURL.create();
-            cb.baseURL = baseURL;
-
-            if (cb.open()) {
-                app.displaySuccessMessage("Post created: " + fileName);
+            // quote posts require link/cited data in the body
+            if (postType === "quote" && linkVal === "" && citedVal === "") {
+                alert(
+                    "Quote posts require Link and/or Cited data in the draft body. Please correct the draft or change the post type.",
+                );
+                context.cancel("Quote post missing link/cited data.");
             } else {
-                app.displayErrorMessage("Failed to send to Working Copy");
-                context.fail();
+                // build filename: yyyy-mm-dd-title.md (no time)
+                var fileTitle = titleVal
+                    .replace(/:/g, "-")
+                    .replace(/ - /g, "-")
+                    .trim();
+                var titleArr = fileTitle.split(" "),
+                    fileName = dateForFilename + "-";
+                titleArr.map((t) => (fileName += t + "-"));
+                fileName = fileName.replace(/-$/, "") + ".md";
+
+                var postPath = "_posts/" + year + "/" + fileName.toLowerCase(),
+                    cb = CallbackURL.create();
+
+                if (postType === "mixtapes") {
+                    // mixtapes: front matter is already present — send raw draft content as-is
+                    cb.baseURL =
+                        "working-copy://x-callback-url/write/?key=" +
+                        credential.getValue("working-copy-key") +
+                        "&repo=" +
+                        encodeURIComponent(credential.getValue("jekyll-repo")) +
+                        "&path=" +
+                        encodeURIComponent(postPath) +
+                        "&text=" +
+                        encodeURIComponent(draft.content);
+                } else {
+                    // remove the title line from content
+                    content = content.replace(titleVal, "").trim();
+
+                    // assemble front matter
+                    var newDraft = "---\n\n";
+                    newDraft += "layout: post\n";
+                    newDraft += "date: " + frontMatterDate + "\n";
+                    newDraft += "title: " + titleVal + "\n";
+
+                    if (linkVal !== "") newDraft += "link: " + linkVal + "\n";
+                    if (citedVal !== "")
+                        newDraft += "cited: " + citedVal + "\n";
+
+                    if (postType === "rss") newDraft += "type: RSS\n";
+                    else if (postType === "til") newDraft += "type: TIL\n";
+                    else if (postType === "ways") newDraft += "type: Ways\n";
+
+                    newDraft += "\n---\n\n";
+                    newDraft += content;
+
+                    // set draft content
+                    editor.setText(newDraft);
+
+                    cb.baseURL =
+                        "working-copy://x-callback-url/write/?key=" +
+                        credential.getValue("working-copy-key") +
+                        "&repo=" +
+                        encodeURIComponent(credential.getValue("jekyll-repo")) +
+                        "&path=" +
+                        encodeURIComponent(postPath) +
+                        "&text=" +
+                        encodeURIComponent(newDraft);
+                }
+
+                if (!cb.open()) {
+                    app.displayErrorMessage("Failed to send to Working Copy");
+                    context.fail();
+                }
             }
         }
     }
