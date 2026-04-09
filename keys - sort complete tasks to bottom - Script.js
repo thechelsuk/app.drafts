@@ -1,4 +1,9 @@
-// Completed items moved to bottom of draft
+/*
+ * @title: Move complete tasks to bottom
+ * @author: thechelsuk
+ * @notes: Completed items moved to bottom of draft
+ */
+
 (() => {
     // main :: () -> IO Bool
     const main = () => {
@@ -11,8 +16,8 @@
                     d.languageGrammar === "Taskpaper"
                         ? (x) => !x.includes("@done")
                         : (x) => !/^\s*-\s*\[[x\-\*\+]\]/.exec(x),
-                    d.content.split("\n")
-                )
+                    d.content.split("\n"),
+                ),
             ).join("\n");
 
         draft.content = completedItemsToEnd(draft);
@@ -39,7 +44,7 @@
     const partition = (p, xs) =>
         xs.reduce(
             (a, x) => (p(x) ? [a[0].concat(x), a[1]] : [a[0], a[1].concat(x)]),
-            [[], []]
+            [[], []],
         );
 
     // MAIN -----------------------------------------------

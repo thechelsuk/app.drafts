@@ -1,7 +1,8 @@
-// New Draft from Templates
-//
-// Select from a list of drafts tagged 'template' and create new
-// draft based on selection
+/*
+ * @title: New Draft from Template
+ * @author: thechelsuk
+ * @notes: Creates a new draft based on selected templates
+ */
 
 (() => {
     // anonymous function prevents variable conflicts with other actions
@@ -22,13 +23,13 @@
         workspace
             .query("all")
             .sort(sort_drafts_by_title)
-            .map((d) => [d.displayTitle, d])
+            .map((d) => [d.displayTitle, d]),
     );
 
     // check if we found any valid templates
     if (drafts.size == 0) {
         alert(
-            "No templates found. To make templates available to this action, create a draft with the template content and assign it the tag 'template'."
+            "No templates found. To make templates available to this action, create a draft with the template content and assign it the tag 'template'.",
         );
         return false;
     }
@@ -50,7 +51,7 @@
             "Templates",
             Array.from(drafts.keys()),
             [],
-            true
+            true,
         );
         p.addButton("OK");
 

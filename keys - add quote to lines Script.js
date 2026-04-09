@@ -1,6 +1,6 @@
 /*
  * @title: Quote it all
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: Makes each non-title line in a Draft a quote
  */
 
@@ -14,7 +14,7 @@ if (draft) {
 
         let title = lines[0];
         let quotedLines = lines.slice(1).map(
-            (line) => (line.trim() ? `> ${line}` : line) // Add prefix only if the line is non-empty
+            (line) => (line.trim() ? `> ${line}` : line), // Add prefix only if the line is non-empty
         );
         let updatedContent = [title, ...quotedLines].join("\n");
 

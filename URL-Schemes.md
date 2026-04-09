@@ -40,3 +40,13 @@ This document provides a list of useful URL schemes for the [Drafts app](https:/
 ### Quiche Browser
 
 - `qb:open?url=[[selection]]`
+- `qb:search?q=[[selection]]`
+
+### Ecosia Search
+
+- `https://www.ecosia.org/search?method=index&q=[[selection]]`
+
+### Google Search with udm14
+
+- `https://google.co.uk/search?q=[[selection]]&udm=14`
+

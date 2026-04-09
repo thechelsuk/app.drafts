@@ -1,6 +1,6 @@
 /*
  * @title: Clean urls
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: Looks and removes junk for urls.
  */
 
@@ -156,7 +156,7 @@ draft.update();
 // Show results
 if (replacements > 0) {
     app.displaySuccessMessage(
-        "Cleaned " + replacements + " URL" + (replacements === 1 ? "" : "s")
+        "Cleaned " + replacements + " URL" + (replacements === 1 ? "" : "s"),
     );
 } else {
     app.displayInfoMessage("No tracking parameters found");

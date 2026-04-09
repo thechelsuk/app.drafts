@@ -1,6 +1,6 @@
 /*
  * @title: Deduplicate list items in Drafts
- * @author: TheChelsuk
+ * @author: thechelsuk
  * @notes: creates new list of duplicates and updates existing list with unique items
  */
 

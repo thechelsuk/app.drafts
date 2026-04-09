@@ -1,4 +1,8 @@
-// Drafts App Script: Render Simplified HTML for Markdown Preview
+/*
+ * @title: Markdown Preview
+ * @author: thechelsuk
+ * @notes: Drafts App Script: Render Simplified HTML for Markdown Preview
+ */
 
 // Get the current draft content
 const draftContent = draft.content;

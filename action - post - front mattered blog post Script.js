@@ -13,7 +13,7 @@ var result = credential.authorize();
 
 if (!result) {
     alert(
-        "Failed to obtain required Jekyll data. Please check it and try again."
+        "Failed to obtain required Jekyll data. Please check it and try again.",
     );
     context.cancel("Failed to obtain required Jekyll data.");
 } else {
@@ -24,7 +24,7 @@ if (!result) {
         !credential.getValue("working-copy-key")
     ) {
         alert(
-            "Repo values are invalid. Please rerun the action and enter the credentials again."
+            "Repo values are invalid. Please rerun the action and enter the credentials again.",
         );
         credential.forget();
         context.cancel("Repo values were invalid.");
@@ -44,7 +44,7 @@ if (!result) {
 
             // Extract title from the front matter (handles with or without quotes)
             var titleMatch = frontMatter.match(
-                /title:\s*["']?([^"'\n]+?)["']?\s*$/m
+                /title:\s*["']?([^"'\n]+?)["']?\s*$/m,
             );
             if (titleMatch) {
                 title = titleMatch[1].trim();
@@ -52,7 +52,7 @@ if (!result) {
 
             // Extract date from the front matter, if available
             var dateMatch = frontMatter.match(
-                /date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})/
+                /date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})/,
             );
             if (dateMatch) {
                 now = dateMatch[1];
@@ -68,7 +68,7 @@ if (!result) {
 
         // Construct the path with the year as a subfolder
         var filePath = `${credential.getValue(
-            "jekyll-path"
+            "jekyll-path",
         )}/${year}/${fileName}`; // Append year subfolder to path
 
         // Construct Working Copy URL

@@ -1,12 +1,12 @@
 /*
- * @title: Regular Post to Working Copy
+ * @title: Jekyll formatting -> Working Copy
  * @author: thechelsuk
- * @notes: Create markdown blog post in Working Copy
+ * @notes: creates jekyll md file in RSS folder
  */
 
-var credential = Credential.create("Jekyll Post Path", "Jekyll Post Path");
+var credential = Credential.create("Jekyll RSS path", "Jekyll RSS path");
 credential.addTextField("jekyll-repo", "Jekyll repo name");
-credential.addTextField("jekyll-path", "Path to your jekyll posts directory");
+credential.addTextField("jekyll-rss-path", "Path to jekyll posts directory");
 credential.addTextField("working-copy-key", "Working Copy x-url-callback key");
 
 var result = credential.authorize();
@@ -22,7 +22,7 @@ if (!result) {
     if (
         typeof credential.getValue("jekyll-repo") === "undefined" ||
         String(credential.getValue("jekyll-repo")).length === 0 ||
-        typeof credential.getValue("jekyll-path") === "undefined" ||
+        typeof credential.getValue("jekyll-rss-path") === "undefined" ||
         String(credential.getValue("jekyll-path")).length === 0 ||
         typeof credential.getValue("working-copy-key") === "undefined" ||
         String(credential.getValue("working-copy-key")).length === 0
@@ -52,8 +52,6 @@ if (!result) {
             prompt.addTextField("title", "Title", draft.title);
         }
 
-        prompt.addTextField("link", "Link", "");
-        prompt.addTextField("cited", "Cited", "");
         prompt.addTextField("date", "Date", now);
 
         prompt.addButton("Ok");
@@ -77,11 +75,7 @@ if (!result) {
             newDraft += "layout: post\n";
             newDraft += "date: " + prompt.fieldValues["date"] + "\n";
 
-            if (prompt.fieldValues["link"] !== "")
-                newDraft += "link: " + prompt.fieldValues["link"] + "\n";
-
             newDraft += "title: " + prompt.fieldValues["title"] + "\n";
-            newDraft += "cited: " + prompt.fieldValues["cited"] + "\n";
             newDraft += "\n";
             newDraft += "---\n";
             newDraft += "\n";
@@ -98,22 +92,13 @@ if (!result) {
                     "&repo=" +
                     encodeURIComponent(credential.getValue("jekyll-repo")) +
                     "&path=" +
-                    encodeURIComponent(credential.getValue("jekyll-path")) +
-                    "/" +
-                    year +
-                    "/" +
+                    encodeURIComponent(credential.getValue("jekyll-rss-path")) +
                     encodeURIComponent(fileName.toLowerCase()) +
                     "&text=" +
                     encodeURIComponent(newDraft),
                 cb = CallbackURL.create();
             cb.baseURL = baseURL;
-
-            if (cb.open()) {
-                app.displaySuccessMessage("Post created: " + fileName);
-            } else {
-                app.displayErrorMessage("Failed to send to Working Copy");
-                context.fail();
-            }
+            cb.open();
         }
     }
 }

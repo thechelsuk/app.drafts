@@ -1,6 +1,6 @@
 /*
  * @title: Weather Update
- * @author: TheChelsuk
+ * @author: thechelsuk
  * @notes: Fetches weather data from OpenWeatherMap
  * and appends to the current draft with markdown formatted data
  */

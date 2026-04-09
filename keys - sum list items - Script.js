@@ -1,6 +1,6 @@
 /*
  * @title: Sum list item costs
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: Looks for £xx.xx in markdown rows and adds a total line at the bottom.
  */
 

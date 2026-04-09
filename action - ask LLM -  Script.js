@@ -1,3 +1,9 @@
+/*
+ * @title: Ask LLM
+ * @author: thechelsuk
+ * @notes: Prompts user for input, sends to on-device LLM, and displays response in an alert
+ */
+
 let f = () => {
     // EXIT EARLY IF NOT SUPPORTED
     if (!SystemLanguageModel.isAvailable) {

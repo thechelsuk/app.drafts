@@ -1,6 +1,6 @@
 /*
  * @title: sort list items
- * @author: TheChelsUk
+ * @author: thechelsuk
  * @notes: every list in a draft is updated to be sorted alphabetically
  */
 

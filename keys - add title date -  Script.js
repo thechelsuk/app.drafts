@@ -1,6 +1,6 @@
 /*
  * @title: Add Date Header at Cursor
- * @author: TheChelsuk
+ * @author: thechelsuk
  * @notes: Inserts current date as a markdown header
  * at the cursor position
  */

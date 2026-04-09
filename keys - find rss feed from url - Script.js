@@ -1,8 +1,7 @@
 /*
  * @title: Find RSS Feed
- * @author: TheChelsuk
- * @notes: Takes a URL and finds its RSS feed
- * Only appends verified, working feeds
+ * @author: thechelsuk
+ * @notes: Takes a URL and finds its RSS feed only appends verified, working feeds
  */
 
 // Get URL from draft
@@ -37,7 +36,7 @@ let response = http.request({
 
 if (!response.success || !response.responseText) {
     app.displayErrorMessage(
-        "Failed to fetch URL: " + (response.statusCode || "Network error")
+        "Failed to fetch URL: " + (response.statusCode || "Network error"),
     );
     context.fail();
 }
@@ -118,7 +117,7 @@ if (candidateFeeds.length === 0) {
 let validFeeds = [];
 
 app.displayInfoMessage(
-    "Checking " + candidateFeeds.length + " potential feeds..."
+    "Checking " + candidateFeeds.length + " potential feeds...",
 );
 
 for (let feedUrl of candidateFeeds) {

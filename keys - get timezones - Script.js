@@ -1,7 +1,7 @@
 /*
- * @title: Timezones
- * @author: TheChelsUk
- * @notes: creates list of timezones given a UK time 24h clock
+ * @title: Time Zones
+ * @author: thechelsuk
+ * @notes: creates list of time zones given a UK time 24h clock
  */
 
 // Get the first line (should contain time in HH:MM format)
@@ -14,7 +14,7 @@ let match = timeString.match(timeRegex);
 
 if (!match) {
     app.displayErrorMessage(
-        "First line must contain time in 24-hour format (e.g., 14:00)"
+        "First line must contain time in 24-hour format (e.g., 14:00)",
     );
     context.fail();
 }
@@ -45,7 +45,7 @@ let ukOffset = isBST ? 1 : 0; // BST is GMT+1, GMT is GMT+0
 
 // Create a reference date in UK time
 let ukDate = new Date(
-    Date.UTC(year, now.getMonth(), now.getDate(), hours - ukOffset, minutes)
+    Date.UTC(year, now.getMonth(), now.getDate(), hours - ukOffset, minutes),
 );
 
 // Timezone definitions (offset from UTC)
