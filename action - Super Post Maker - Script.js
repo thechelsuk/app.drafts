@@ -1,7 +1,7 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 3.0
+ * @version: 3.1
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
  *         Supports post, quote, rss, til, ways, mixtapes as post types via front matter.
@@ -74,6 +74,7 @@ if (!result) {
             false,
         );
         prompt.addSwitch("pinned", "Pinned", false);
+        prompt.addSwitch("indie", "Indie", false);
         prompt.addButton("Ok");
         prompt.show();
 
@@ -81,6 +82,7 @@ if (!result) {
             var postType = prompt.fieldValues["postType"][0],
                 titleVal = prompt.fieldValues["title"],
                 pinnedVal = prompt.fieldValues["pinned"],
+                indieVal = prompt.fieldValues["indie"],
                 linkVal = extractedLink,
                 citedVal = extractedCited,
                 newDraft = draft.content;
@@ -123,6 +125,7 @@ if (!result) {
                     else if (postType === "ways") newDraft += "type: Ways\n";
 
                     if (pinnedVal) newDraft += "pinned: true\n";
+                    if (indieVal) newDraft += "class: indie\n";
 
                     newDraft += "\n---\n\n";
                     newDraft += content;
