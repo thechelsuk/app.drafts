@@ -120,9 +120,9 @@ if (!result) {
                     if (citedVal !== "")
                         newDraft += "cited: " + citedVal + "\n";
 
-                    if (postType === "rss") newDraft += "type: RSS\n";
-                    else if (postType === "til") newDraft += "type: TIL\n";
-                    else if (postType === "ways") newDraft += "type: Ways\n";
+                    if (postType === "rss") newDraft += "type: rss\n";
+                    else if (postType === "til") newDraft += "type: til\n";
+                    else if (postType === "ways") newDraft += "type: ways\n";
 
                     if (pinnedVal) newDraft += "pinned: true\n";
                     if (indieVal) newDraft += "class: indie\n";
