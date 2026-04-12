@@ -1,7 +1,7 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 3.1
+ * @version: 3.2
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
  *         Supports post, quote, rss, til, ways, mixtapes as post types via front matter.
