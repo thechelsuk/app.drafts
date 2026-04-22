@@ -1,10 +1,10 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 3.2
+ * @version: 3.3
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
- *         Supports post, quote, rss, til, ways, mixtapes as post types via front matter.
+ *         Supports blog, quote, rss, til, ways, mixtapes, social as post types via front matter.
  *         mixtapes: skips front matter assembly and sends raw draft content as-is.
  *         quote: requires Link and/or Cited metadata in the draft body.
  *         Extracts Link, Cited, and Date from draft content automatically if present.
@@ -69,8 +69,8 @@ if (!result) {
         prompt.addSelect(
             "postType",
             "Post type",
-            ["post", "quote", "rss", "til", "ways", "mixtapes"],
-            ["post"],
+            ["blog", "quote", "rss", "til", "ways", "mixtapes", "social"],
+            ["blog"],
             false,
         );
         prompt.addSwitch("pinned", "Pinned", false);
@@ -110,6 +110,7 @@ if (!result) {
 
                     newDraft = "---\n\n";
                     newDraft += "layout: post\n";
+                    newDraft += "syndicate_to: [ mastodon, bluesky, reddit ]\n";
                     newDraft += "date: " + frontMatterDate + "\n";
                     newDraft +=
                         "title: " +
@@ -123,6 +124,8 @@ if (!result) {
                     if (postType === "rss") newDraft += "type: rss\n";
                     else if (postType === "til") newDraft += "type: til\n";
                     else if (postType === "ways") newDraft += "type: ways\n";
+                    else if (postType === "social")newDraft += "type: social\n";
+                    else if (postType === "blog") newDraft += "type: blog\n";
 
                     if (pinnedVal) newDraft += "pinned: true\n";
                     if (indieVal) newDraft += "class: indie\n";
