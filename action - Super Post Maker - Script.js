@@ -126,6 +126,7 @@ if (!result) {
                     else if (postType === "ways") newDraft += "type: ways\n";
                     else if (postType === "social")newDraft += "type: social\n";
                     else if (postType === "blog") newDraft += "type: blog\n";
+                    else if (postType === "quote") newDraft += "type: linked\n";
 
                     if (pinnedVal) newDraft += "pinned: true\n";
                     if (indieVal) newDraft += "class: indie\n";
