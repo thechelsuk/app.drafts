@@ -5,7 +5,7 @@ title: post title
 author: name
 tags: [news]
 date: YYYY-MM-DD
-type: [post, quote, ways, rss, til]
+type: [blog, daily, linked, mixtape, release, rss, social, til, video, ways, film]]
 seo:
 
 ---
