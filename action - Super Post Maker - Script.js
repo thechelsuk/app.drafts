@@ -1,7 +1,7 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 3.4
+ * @version: 3.5.0
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
  *         Supports blog, quote, rss, til, ways, mixtapes, social as post types via front matter.
@@ -87,21 +87,63 @@ if (!result) {
                 citedVal = extractedCited,
                 newDraft = draft.content;
 
+            // Helper to create a safe slug from a title
+            function makeSlug(str) {
+                return str
+                    .replace(/\//g, "-")
+                    .toLowerCase()
+                    .replace(/:/g, "-")
+                    .replace(/ - /g, "-")
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9\-]/g, "")
+                    .replace(/-+/g, "-")
+                    .replace(/^-|-$/g, "");
+            }
+
+            // Helper to create a safe filename for all post types
+            function makeDatedFilename(title, date) {
+                var slug = makeSlug(title);
+                return date + "-" + slug + ".md";
+            }
+
+            // For mixtapes, extract the value from the 'title:' line in the front matter if present
+            function extractMixtapeTitle(content) {
+                var lines = content.split(/\r?\n/);
+                var inFrontMatter = false;
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i].trim();
+                    if (line === "---") {
+                        if (!inFrontMatter) {
+                            inFrontMatter = true;
+                        } else {
+                            break;
+                        }
+                    } else if (
+                        inFrontMatter &&
+                        line.toLowerCase().startsWith("title:")
+                    ) {
+                        // Extract everything after 'title:' and trim
+                        return line.substring(6).trim();
+                    }
+                }
+                return null;
+            }
+
             if (postType === "quote" && linkVal === "" && citedVal === "") {
                 alert(
                     "Quote posts require Link and/or Cited data in the draft body. Please correct the draft or change the post type.",
                 );
                 context.cancel("Quote post missing link/cited data.");
             } else {
-                var fileTitle = titleVal
-                        .replace(/:/g, "-")
-                        .replace(/ - /g, "-")
-                        .trim(),
-                    titleArr = fileTitle.split(" "),
-                    fileName = dateForFilename + "-";
-
-                titleArr.map((t) => (fileName += t + "-"));
-                fileName = fileName.replace(/-$/, "") + ".md";
+                var mixtapeTitle = null;
+                if (postType === "mixtapes") {
+                    mixtapeTitle =
+                        extractMixtapeTitle(draft.content) || titleVal;
+                }
+                var fileName = makeDatedFilename(
+                    postType === "mixtapes" ? mixtapeTitle : titleVal,
+                    dateForFilename,
+                );
 
                 var postPath = "_posts/" + year + "/" + fileName.toLowerCase();
 
@@ -124,7 +166,8 @@ if (!result) {
                     if (postType === "rss") newDraft += "type: rss\n";
                     else if (postType === "til") newDraft += "type: til\n";
                     else if (postType === "ways") newDraft += "type: ways\n";
-                    else if (postType === "social")newDraft += "type: social\n";
+                    else if (postType === "social")
+                        newDraft += "type: social\n";
                     else if (postType === "blog") newDraft += "type: blog\n";
                     else if (postType === "quote") newDraft += "type: linked\n";
 
@@ -151,7 +194,6 @@ if (!result) {
                     if (postType !== "mixtapes") {
                         editor.setText(newDraft);
                     }
-                    app.displaySuccessMessage("Post created: " + fileName);
                 } else {
                     app.displayErrorMessage("Failed to send to Working Copy");
                     context.fail();
