@@ -1,10 +1,10 @@
 /*
  * @title: Super Social Post Maker
  * @author: thechelsuk
- * @version: 1.0.0
+ * @version: 2.0.0
  * @notes: Create markdown social post in Working Copy.
  *         Posts always go to _posts/[year]/.
- *         Supports mention-of, in-reply-to, like-of, repost-of, bookmark-of types via front matter.
+ *         Supports note, mention-of, in-reply-to, like-of, repost-of, bookmark-of types via front matter.
  */
 
 var credential = Credential.create("Jekyll Post Path", "Jekyll Post Path");
@@ -57,6 +57,7 @@ if (!result) {
     // --- SOCIAL POST ONLY VERSION ---
     // i_typeMap for supported types
     var i_typeMap = {
+        note: "note",
         "bookmark-of": "bookmark-of",
         "mention-of": "mention-of",
         "in-reply-to": "in-reply-to",
@@ -75,7 +76,7 @@ if (!result) {
         "i_type",
         "Interaction Type",
         Object.keys(i_typeMap),
-        ["like-of"],
+        ["note"],
         false,
     );
     prompt.addTextField("i_url", "Interaction URL", "");
@@ -113,9 +114,11 @@ if (!result) {
 
         var newDraft = "---\n";
         newDraft += "layout: post\n";
+        newDraft += "title: '" + titleVal.replace(/'/g, "''") + "'\n";
         newDraft += "syndicate: true\n";
         newDraft += "date: " + frontMatterDate + "\n";
         newDraft += "type: social\n";
+        newDraft += "show: false\n";
         newDraft += "i_type: " + i_typeMap[i_type] + "\n";
         newDraft += "i_url: '" + i_url + "'\n";
         newDraft += "---\n\n";
