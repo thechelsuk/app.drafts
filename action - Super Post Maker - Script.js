@@ -1,7 +1,7 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 4.0.0
+ * @version: 4.1.0
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
  *         Supports blog, quote, rss, til, ways, mixtapes, social as post types via front matter.
@@ -73,6 +73,8 @@ if (!result) {
     );
     prompt.addSwitch("pinned", "Pinned", false);
     prompt.addSwitch("indie", "Indie", false);
+    prompt.addSwitch("syndicate", "Syndicate", false);
+    prompt.addSwitch("hide", "Hide", true);
     prompt.addButton("Ok");
     prompt.show();
 
@@ -81,6 +83,8 @@ if (!result) {
             titleVal = prompt.fieldValues["title"],
             pinnedVal = prompt.fieldValues["pinned"],
             indieVal = prompt.fieldValues["indie"],
+            pubVal = prompt.fieldValues["syndicate"],
+            hideVal = prompt.fieldValues["hide"],
             linkVal = extractedLink,
             citedVal = extractedCited,
             newDraft = draft.content;
@@ -143,7 +147,7 @@ if (!result) {
             );
 
             var postPath = "_posts/" + year + "/" + fileName.toLowerCase();
-            var syndicateVal = postType === "social";
+            var syndicateVal = pubVal || postType === "social" ? "true" : "false";
 
             if (postType !== "mixtapes") {
                 content = content.replace(titleVal, "").trim();
@@ -161,6 +165,7 @@ if (!result) {
                 if (citedVal !== "") newDraft += "cited: " + citedVal + "\n";
                 if (pinnedVal) newDraft += "pinned: true\n";
                 if (indieVal) newDraft += "class: indie\n";
+                if (hideVal) newDraft += "show: false\n";
 
                 var typeMap = {
                     rss: "rss",
