@@ -1,13 +1,18 @@
 /*
  * @title: Super Post Maker
  * @author: thechelsuk
- * @version: 4.1.0
+ * @version: 4.5.0
  * @notes: Create markdown blog post in Working Copy.
  *         Posts always go to _posts/[year]/.
- *         Supports blog, quote, rss, til, ways, mixtapes, social as post types via front matter.
+ *         Supports blog, quote, rss, til, ways, mixtapes, micro as post types via front matter.
  *         mixtapes: skips front matter assembly and sends raw draft content as-is.
  *         quote: requires Link and/or Cited metadata in the draft body.
  *         Extracts Link, Cited, and Date from draft content automatically if present.
+ *         syndicate is an array (mastodon, bluesky, rss, indie) rendered as an
+ *         indented YAML list in front matter, e.g.:
+ *           syndicate:
+ *             - mastodon
+ *             - bluesky
  */
 
 var credential = Credential.create("Jekyll Post Path", "Jekyll Post Path");
@@ -67,13 +72,29 @@ if (!result) {
     prompt.addSelect(
         "postType",
         "Post type",
-        ["blog", "quote", "rss", "til", "ways", "mixtapes", "social", "gift", "mailbox", "film" ],
+        [
+            "blog",
+            "quote",
+            "rss",
+            "til",
+            "ways",
+            "mixtapes",
+            "micro",
+            "gift",
+            "mailbox",
+            "film",
+        ],
         ["blog"],
         false,
     );
     prompt.addSwitch("pinned", "Pinned", false);
-    prompt.addSwitch("indie", "Indie", false);
-    prompt.addSwitch("syndicate", "Syndicate", false);
+    prompt.addSelect(
+        "syndicate",
+        "Syndicate to",
+        ["mastodon", "bluesky", "rss", "indie", "textlog", "devnull"],
+        ["mastodon", "bluesky"],
+        true,
+    );
     prompt.addSwitch("hide", "Hide", true);
     prompt.addButton("Ok");
     prompt.show();
@@ -82,8 +103,7 @@ if (!result) {
         var postType = prompt.fieldValues["postType"][0],
             titleVal = prompt.fieldValues["title"],
             pinnedVal = prompt.fieldValues["pinned"],
-            indieVal = prompt.fieldValues["indie"],
-            pubVal = prompt.fieldValues["syndicate"],
+            syndicateArr = prompt.fieldValues["syndicate"] || [],
             hideVal = prompt.fieldValues["hide"],
             linkVal = extractedLink,
             citedVal = extractedCited,
@@ -147,14 +167,20 @@ if (!result) {
             );
 
             var postPath = "_posts/" + year + "/" + fileName.toLowerCase();
-            var syndicateVal = pubVal || postType === "social" ? "true" : "false";
 
             if (postType !== "mixtapes") {
                 content = content.replace(titleVal, "").trim();
 
                 newDraft = "---\n\n";
                 newDraft += "layout: post\n";
-                newDraft += "syndicate: " + syndicateVal + "\n";
+
+                if (syndicateArr.length > 0) {
+                    newDraft += "syndicate:\n";
+                    for (var i = 0; i < syndicateArr.length; i++) {
+                        newDraft += "  - " + syndicateArr[i] + "\n";
+                    }
+                }
+
                 newDraft += "date: " + frontMatterDate + "\n";
                 newDraft +=
                     "title: " +
@@ -164,14 +190,13 @@ if (!result) {
                 if (linkVal !== "") newDraft += "link: " + linkVal + "\n";
                 if (citedVal !== "") newDraft += "cited: " + citedVal + "\n";
                 if (pinnedVal) newDraft += "pinned: true\n";
-                if (indieVal) newDraft += "class: indie\n";
                 if (hideVal) newDraft += "show: false\n";
 
                 var typeMap = {
                     rss: "rss",
                     til: "til",
                     ways: "ways",
-                    social: "social",
+                    micro: "micro",
                     blog: "blog",
                     quote: "linked",
                     gift: "gift",

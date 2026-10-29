@@ -1,7 +1,7 @@
 /*
  * @title: Super Social Post Maker
  * @author: thechelsuk
- * @version: 2.0.0
+ * @version: 2.1.0
  * @notes: Create markdown social post in Working Copy.
  *         Posts always go to _posts/[year]/.
  *         Supports note, mention-of, in-reply-to, like-of, repost-of, bookmark-of types via front matter.
@@ -115,10 +115,13 @@ if (!result) {
         var newDraft = "---\n";
         newDraft += "layout: post\n";
         newDraft += "title: '" + titleVal.replace(/'/g, "''") + "'\n";
-        newDraft += "syndicate: true\n";
+        newDraft += "syndicate:\n";
+        newDraft += "   - bluesky\n";
+        newDraft += "   - mastodon\n";
+        newDraft += "   - textlog\n";
+        newDraft += "   - devnull\n";
         newDraft += "date: " + frontMatterDate + "\n";
-        newDraft += "type: social\n";
-        newDraft += "show: false\n";
+        newDraft += "type: micro\n";
         newDraft += "i_type: " + i_typeMap[i_type] + "\n";
         newDraft += "i_url: '" + i_url + "'\n";
         newDraft += "---\n\n";
