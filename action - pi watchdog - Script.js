@@ -1,6 +1,7 @@
 /*
  * @title: Pi Watchdog
  * @author: thechelsuk
+ * @version: 1.0.1
  * @notes: Shows who is running Cheltenham Open Data's 5-minute checks (the
  * Raspberry Pi or Cloudflare), switches the watchdog's mode, and can add the
  * status to the current draft.
@@ -16,9 +17,18 @@
  */
 
 const MODES = {
-    auto: { name: "Auto", button: "Switch to Auto (follow the Pi's check-ins)" },
-    pi: { name: "Pi Only", button: "Switch to Pi Only (Cloudflare never takes over)" },
-    cloud: { name: "Cloud", button: "Switch to Cloud (Cloudflare takes over now)" },
+    auto: {
+        name: "Auto",
+        button: "Switch to Auto (follow the Pi's check-ins)",
+    },
+    pi: {
+        name: "Pi Only",
+        button: "Switch to Pi Only (Cloudflare never takes over)",
+    },
+    cloud: {
+        name: "Cloud",
+        button: "Switch to Cloud (Cloudflare takes over now)",
+    },
 };
 
 function ukParts(iso) {
@@ -46,7 +56,10 @@ function ukTime(iso) {
 // "1 November 2026 at 00:30" in UK time, for the draft.
 function ukLongTime(iso) {
     const p = ukParts(iso);
-    const month = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", month: "long" }).format(new Date(iso));
+    const month = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        month: "long",
+    }).format(new Date(iso));
     return `${Number(p.day)} ${month} ${p.year} at ${p.hour}:${p.minute}`;
 }
 
@@ -55,19 +68,25 @@ function modeName(mode) {
 }
 
 function takeoverRule(s) {
-    return {
-        auto: `Cloudflare takes over after ${s.stale_after_minutes} minutes without a check-in`,
-        pi: "Cloudflare never takes over",
-        cloud: "Cloudflare runs the checks, whatever the Pi does",
-    }[s.mode] || "";
+    return (
+        {
+            auto: `Cloudflare takes over after ${s.stale_after_minutes} minutes without a check-in`,
+            pi: "Cloudflare never takes over",
+            cloud: "Cloudflare runs the checks, whatever the Pi does",
+        }[s.mode] || ""
+    );
 }
 
 function startedWorkflows(s) {
-    return Object.entries(s.scheduled_started_by_cloudflare || {}).filter(([, v]) => v);
+    return Object.entries(s.scheduled_started_by_cloudflare || {}).filter(
+        ([, v]) => v,
+    );
 }
 
 function title(s) {
-    return s.cloud_active ? "Pi Watchdog: Cloudflare Is in Charge" : "Pi Watchdog: the Pi Is in Charge";
+    return s.cloud_active
+        ? "Pi Watchdog: Cloudflare Is in Charge"
+        : "Pi Watchdog: the Pi Is in Charge";
 }
 
 // The popup's message.
@@ -78,12 +97,19 @@ function message(s) {
     const fallback = s.last_fallback
         ? `Last fallback run: ${ukTime(s.last_fallback.at)}${s.last_fallback.ok === false ? " (failed)" : ""}`
         : "Last fallback run: never";
-    const lines = [`${checkIn} · Mode: ${modeName(s.mode)}`, "", `${takeoverRule(s)}.`, fallback];
+    const lines = [
+        `${checkIn} · Mode: ${modeName(s.mode)}`,
+        "",
+        `${takeoverRule(s)}.`,
+        fallback,
+    ];
     const started = startedWorkflows(s);
     if (started.length > 0) {
         lines.push("", "Workflows Cloudflare started:");
         started.forEach(([workflow, v]) => {
-            lines.push(`${workflow}: ${ukTime(v.at)}${v.ok === false ? " (failed)" : ""}`);
+            lines.push(
+                `${workflow}: ${ukTime(v.at)}${v.ok === false ? " (failed)" : ""}`,
+            );
         });
     }
     return lines.join("\n");
@@ -91,8 +117,13 @@ function message(s) {
 
 // The status as Markdown, for the draft.
 function statusText(s, now) {
-    const minutes = s.minutes_since_heartbeat === 1 ? "1 minute" : `${s.minutes_since_heartbeat} minutes`;
-    const checkIn = s.last_heartbeat ? `${ukLongTime(s.last_heartbeat)} (${minutes} ago)` : "not yet";
+    const minutes =
+        s.minutes_since_heartbeat === 1
+            ? "1 minute"
+            : `${s.minutes_since_heartbeat} minutes`;
+    const checkIn = s.last_heartbeat
+        ? `${ukLongTime(s.last_heartbeat)} (${minutes} ago)`
+        : "not yet";
     const fallback = s.last_fallback
         ? `${ukLongTime(s.last_fallback.at)} (${s.last_fallback.ok === false ? "failed" : "worked"})`
         : "never";
@@ -112,7 +143,9 @@ function statusText(s, now) {
     } else {
         lines.push("- Workflows Cloudflare started:");
         started.forEach(([workflow, v]) => {
-            lines.push(`  - ${workflow}: ${ukLongTime(v.at)} (${v.ok === false ? "failed" : "worked"})`);
+            lines.push(
+                `  - ${workflow}: ${ukLongTime(v.at)} (${v.ok === false ? "failed" : "worked"})`,
+            );
         });
     }
     return lines.join("\n");
@@ -135,18 +168,27 @@ function buttons(s) {
 }
 
 function watchdogAddress() {
-    const credential = Credential.create("Pi Watchdog Address", "The watchdog's address, starting https://.");
+    const credential = Credential.create(
+        "Pi Watchdog Address",
+        "The watchdog's address, starting https://.",
+    );
     credential.addTextField("url", "Watchdog address");
     if (!credential.authorize()) {
         return null;
     }
-    return { credential, url: (credential.getValue("url") || "").trim().replace(/\/+$/, "") };
+    return {
+        credential,
+        url: (credential.getValue("url") || "").trim().replace(/\/+$/, ""),
+    };
 }
 
 function getStatus(address) {
     let status = null;
     if (/^https:\/\//.test(address.url)) {
-        const response = HTTP.create().request({ url: `${address.url}/status`, method: "GET" });
+        const response = HTTP.create().request({
+            url: `${address.url}/status`,
+            method: "GET",
+        });
         if (response.success) {
             try {
                 status = JSON.parse(response.responseText);
@@ -157,7 +199,9 @@ function getStatus(address) {
     }
     if (!status || typeof status.mode !== "string") {
         address.credential.forget();
-        throw new Error("Couldn't reach the watchdog at that address. Run the action again to enter it.");
+        throw new Error(
+            "Couldn't reach the watchdog at that address. Run the action again to enter it.",
+        );
     }
     return status;
 }
@@ -165,7 +209,8 @@ function getStatus(address) {
 function confirmCloud() {
     const p = Prompt.create();
     p.title = "Switch to Cloud?";
-    p.message = "Cloudflare will run the 5-minute checks, email you and turn the light orange.";
+    p.message =
+        "Cloudflare will run the 5-minute checks, email you and turn the light orange.";
     p.addButton("Switch to Cloud", "yes");
     return p.show() && p.buttonPressed === "yes";
 }
@@ -186,10 +231,14 @@ function setMode(address, mode) {
     });
     if (response.statusCode === 401) {
         credential.forget();
-        throw new Error("The admin token was rejected. Run the action again to enter it.");
+        throw new Error(
+            "The admin token was rejected. Run the action again to enter it.",
+        );
     }
     if (!response.success) {
-        throw new Error(`Couldn't change the mode (HTTP ${response.statusCode}).`);
+        throw new Error(
+            `Couldn't change the mode (HTTP ${response.statusCode}).`,
+        );
     }
     return true;
 }
@@ -211,7 +260,10 @@ function main() {
     }
     const choice = p.buttonPressed;
     if (choice === "draft") {
-        draft.content = withStatus(draft.content, statusText(status, new Date().toISOString()));
+        draft.content = withStatus(
+            draft.content,
+            statusText(status, new Date().toISOString()),
+        );
         draft.update();
         app.displaySuccessMessage("Status added");
         return;
@@ -228,7 +280,16 @@ function main() {
 }
 
 if (typeof module !== "undefined") {
-    module.exports = { ukTime, ukLongTime, title, message, statusText, withStatus, buttons, main };
+    module.exports = {
+        ukTime,
+        ukLongTime,
+        title,
+        message,
+        statusText,
+        withStatus,
+        buttons,
+        main,
+    };
 } else {
     try {
         main();
